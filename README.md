@@ -151,9 +151,24 @@ Once the backend is running, visit:
 ## 🛠️ Tech Stack
 
 - **Backend**: NestJS, PostgreSQL, Prisma, AWS S3, Redis
-- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS, Framer Motion
+- **Frontend**: Next.js, React, TypeScript, Tailwind CSS, Framer Motion
 - **Desktop**: Electron
 - **Auth**: JWT, Passport.js (Google, GitHub OAuth)
+
+## 🚀 Deploying on Vercel (Frontend)
+
+Your Vercel error happened because the project was deployed as **Vite**, but this repo’s web app is **Next.js** inside the `frontend/` folder.
+
+- **Vercel Project Settings**
+  - **Framework Preset**: **Next.js** (not Vite)
+  - **Root Directory**: `frontend` (important)
+  - **Build Command**: `npm run build` (default)
+  - **Install Command**: `npm install` (default)
+
+- **Frontend environment variables (Vercel → Project → Settings → Environment Variables)**
+  - **NEXT_PUBLIC_API_URL**: your deployed backend URL (example: `https://your-backend.example.com`)
+
+> Note: Vercel is hosting the **frontend**. You should deploy the **NestJS backend** separately (Render/Railway/Fly/etc) and point `NEXT_PUBLIC_API_URL` to it.
 
 ## 📝 Development Phases
 
