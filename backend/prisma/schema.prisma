@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  CREATOR
+  EDITOR
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  GITHUB
+}
+
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  passwordHash  String?       // Nullable for OAuth users
+  role          UserRole      @default(CREATOR)
+  authProvider  AuthProvider  @default(EMAIL)
+  name          String?
+  avatar        String?
+  emailVerified Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  createdProjects Project[]           @relation("ProjectCreator")
+  editorProjects  ProjectEditor[]
+  refreshTokens   RefreshToken[]
+  accessLogs      AccessLog[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  creatorId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator User            @relation("ProjectCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  editors ProjectEditor[]
+  files   File[]
+
+  @@index([creatorId])
+  @@map("projects")
+}
+
+model ProjectEditor {
+  id         String   @id @default(uuid())
+  projectId  String
+  editorId   String
+  canView    Boolean  @default(true)
+  canDownload Boolean @default(false)
+  canOpenInEditor Boolean @default(true)
+  canShare   Boolean  @default(false)
+  invitedAt  DateTime @default(now())
+  joinedAt   DateTime?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  editor  User    @relation(fields: [editorId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, editorId])
+  @@index([projectId])
+  @@index([editorId])
+  @@map("project_editors")
+}
+
+model File {
+  id          String   @id @default(uuid())
+  projectId   String
+  name        String
+  storagePath String   // S3 key/path
+  mimeType    String
+  size        BigInt   // File size in bytes
+  checksum    String?  // SHA-256 checksum for integrity
+  uploadedAt  DateTime @default(now())
+
+  project Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  accessLogs AccessLog[]
+
+  @@index([projectId])
+  @@index([storagePath])
+  @@map("files")
+}
+
+model InviteToken {
+  id         String   @id @default(uuid())
+  projectId  String
+  email      String
+  token      String   @unique
+  expiresAt  DateTime
+  used       Boolean  @default(false)
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([token])
+  @@index([projectId])
+  @@index([email])
+  @@map("invite_tokens")
+}
+
+model AccessLog {
+  id        String   @id @default(uuid())
+  fileId    String
+  userId    String
+  action    String   // "view", "download", "open_in_editor"
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([fileId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("access_logs")
+}
