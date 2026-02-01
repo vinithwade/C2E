@@ -262,7 +262,12 @@ export default function HomePage() {
   return (
     <>
       {/* Navigation Bar */}
-      <nav className="navbar" ref={(el) => (navbarRef.current = el)}>
+      <nav
+        className="navbar"
+        ref={(el) => {
+          navbarRef.current = el;
+        }}
+      >
         <div className="nav-container">
           <a href="#hero" className="logo">
             C2E
@@ -352,15 +357,30 @@ export default function HomePage() {
       </section>
 
       {/* Blast Effect Section */}
-      <div className="blast-effect-wrapper" ref={(el) => (blastWrapperRef.current = el)}>
+      <div
+        className="blast-effect-wrapper"
+        ref={(el) => {
+          blastWrapperRef.current = el;
+        }}
+      >
         <div className="blast-content">
           <div className="blast-text-wrap">
-            <h2 className="blast-headline" ref={(el) => (blastHeadlineRef.current = el)}>
+            <h2
+              className="blast-headline"
+              ref={(el) => {
+                blastHeadlineRef.current = el;
+              }}
+            >
               From Creator to Editor
               <br />
               in milliseconds
             </h2>
-            <div className="blast-description" ref={(el) => (blastDescriptionRef.current = el)}>
+            <div
+              className="blast-description"
+              ref={(el) => {
+                blastDescriptionRef.current = el;
+              }}
+            >
               <p>Secure video collaboration that just works.</p>
               <p>No downloads. No public links.</p>
               <p>Direct integration with your editing software.</p>
@@ -389,7 +409,9 @@ export default function HomePage() {
                 role="region"
                 aria-label="How it works steps"
                 tabIndex={0}
-                ref={(el) => (workflowContainerRef.current = el)}
+                ref={(el) => {
+                  workflowContainerRef.current = el;
+                }}
               >
                 {howSteps.map((step, idx) => (
                   <div
